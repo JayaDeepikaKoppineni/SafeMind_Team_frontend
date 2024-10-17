@@ -44,9 +44,11 @@ const Index = () => {
       if (token) {
         setIsLoggedIn(true);
       }
+      setLoading(false);
       setTimeout(() => {
         setLoading(false);
       }, 2000);
+   
     };
 
     checkLoginStatus();
