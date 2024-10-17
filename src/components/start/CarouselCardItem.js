@@ -10,7 +10,7 @@ const CarouselCardItem = ({item, index}) => {
   const {width} = Dimensions.get('window');
   const {height} = Dimensions.get('window');
   return (
-    <View style={styles.container} key={index}>
+    <View style={styles.container} >
       <Image source={{uri: item.imgUrl}} style={styles.image} />
       <View
         style={{flexDirection: 'column', overflow: 'hidden', marginLeft: 10,width: width * 0.45,}}>

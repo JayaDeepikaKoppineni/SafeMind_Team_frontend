@@ -1,11 +1,24 @@
-import { StyleSheet, Text, View } from 'react-native'
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  Button,
+  FlatList,
+  Image,
+  ScrollView,
+} from 'react-native';
 import React from 'react'
 
 const HowitWorks = () => {
   return (
+    <SafeAreaView style={{flex:1}}>
     <View>
-      <Text>HowitWorks</Text>
+      <Text style={{color:'#000'}}>HowitWorks</Text>
     </View>
+    </SafeAreaView>
   )
 }
 
