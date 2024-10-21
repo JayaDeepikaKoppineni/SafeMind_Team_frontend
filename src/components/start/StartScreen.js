@@ -45,12 +45,12 @@ const StartScreen = ({navigation, handleLogin}) => {
         'Generally speaking, the best time to meditate is early morning, right after a trip to the bathroom but before breakfast. Having said that, any time that fits your schedule is good, and the most important thing is to choose a time when you are more likely to actually do it.',
      
     },
-    {
-      question: 'Where to meditate?',
-      answer:
-        'Meditating always in the same place and time is a good help in focusing the mind. Your brain associates that place with the practice, so it is easier for you to focus. There is less distraction involved.',
+    // {
+    //   question: 'Where to meditate?',
+    //   answer:
+    //     'Meditating always in the same place and time is a good help in focusing the mind. Your brain associates that place with the practice, so it is easier for you to focus. There is less distraction involved.',
      
-    },
+    // },
   ];
   const data = [
     {
@@ -375,9 +375,9 @@ const StartScreen = ({navigation, handleLogin}) => {
             <Text style={{color:'#fff'}}>Get Started</Text>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={{marginTop:10}} onPress={howitworks}>
+        <TouchableOpacity style={{marginTop:20}} onPress={howitworks}>
           <View>
-            <Text style={{color:'blue',fontSize:12,textDecorationLine:'underline'}}>How It Works</Text>
+            <Text style={{color:'blue',fontSize:15,textDecorationLine:'underline'}}>How It Works</Text>
           </View>
         </TouchableOpacity>
       </View>
