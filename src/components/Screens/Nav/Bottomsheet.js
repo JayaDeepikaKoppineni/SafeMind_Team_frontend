@@ -87,7 +87,7 @@ export default function App({handleLogout }) {
           return (
             <View style={{ alignItems: 'center' }}>
               <ImageBackground
-                source={require('../../../assets/images/profile1.png')}
+                source={require('../../../assets/images/profile2.png')}
                 style={{
                   width: 22,
                   height: 22,

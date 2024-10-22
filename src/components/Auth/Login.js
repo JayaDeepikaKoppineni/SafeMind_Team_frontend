@@ -13,7 +13,7 @@ import {
   View,
   Dimensions,ImageBackground
 } from 'react-native';
-import toebg from '../../assets/images/s_login.jpeg'
+import toebg from '../../assets/images/login_bg.jpeg'
 // const logo = require("../../assets/logo.png")
 
 // contact me :)
@@ -43,7 +43,7 @@ export default function LoginForm({navigation, handleLogin}) {
   return (
     <ImageBackground
     source={toebg}
-    blurRadius={3}
+    blurRadius={0}
     resizeMethod="cover"
     style={styles.container}>
     <SafeAreaView style={styles.container}>
@@ -63,7 +63,7 @@ export default function LoginForm({navigation, handleLogin}) {
             }}>
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image
-                source={require('../../assets/images/back.png')}
+                source={require('../../assets/images/back_w.png')}
                 style={{width: 30, height: 30}}
               />
             </TouchableOpacity>

@@ -47,7 +47,7 @@ const Index = () => {
       setLoading(false);
       setTimeout(() => {
         setLoading(false);
-      }, 2000);
+      }, 3000);
    
     };
 
@@ -67,7 +67,7 @@ const Index = () => {
   if (loading) {
     // You can return a loading screen or spinner here
     return (
-      <View style={{flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.50)'}}>
+      <View style={{flex: 1, backgroundColor: '#99ff99'}}>
         <View
           style={{
             alignItems: 'center',
@@ -81,7 +81,7 @@ const Index = () => {
               justifyContent: 'center',
               marginTop: '10%',
             }}>
-            {/* <Image style={{ width: 80, height: 60 }} source={require('../../assets/images/Gym_vibe_tran.png')}></Image> */}
+            {/* <Image style={{ width: 80, height: 60 }} source={require('../../assets/images/safemind.png')}></Image> */}
           </View>
           <View
             style={{
@@ -91,35 +91,15 @@ const Index = () => {
               alignContent: 'center',
               flex: 1,
             }}>
+             <Image style={{ width: 200, height: 200 }} source={require('../../assets/images/safemind.png')}></Image>
             {/* <LottieView style={{ width: '40%', alignItems: 'center', }} source={require('../../assets/jsons/gym_loder_main.json')} autoPlay loop /> */}
-            <Text style={{color: '#fff', fontSize: 14, fontWeight: '900'}}>
+            <Text style={{color: '#000', fontSize: 14, fontWeight: '900'}}>
               Please wait...
             </Text>
           </View>
         </View>
-        <View
-          style={{
-            position: 'absolute',
-            bottom: 20,
-            left: 0,
-            right: 0,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <View style={{alignItems: 'center', justifyContent: 'center'}}>
-            <Text
-              style={{
-                color: '#fff',
-                fontWeight: '900',
-                fontSize: 12,
-                marginBottom: 10,
-              }}>
-              Design and Developed by
-            </Text>
-            {/* <Image style={{ width: 150, height: 70, }} source={require('../../assets/images/HemoLink_bg.png')}></Image> */}
-          </View>
-        </View>
-        {/* <Text style={{color:'#fff'}}>Loading...</Text> */}
+     
+  
       </View>
     );
   }
