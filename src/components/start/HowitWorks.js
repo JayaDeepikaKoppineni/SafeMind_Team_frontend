@@ -55,8 +55,8 @@ const HowitWorks = ({navigation}) => {
           style={{
             width: width * 0.95,
             padding: 0,
-            marginBottom: 15,
-            marginTop: 15,
+            marginBottom: 10,
+            marginTop: 10,
           }}>
           <View
             style={{
@@ -72,7 +72,7 @@ const HowitWorks = ({navigation}) => {
                 />
               </TouchableOpacity>
 
-              <Text style={{fontSize: 16, fontWeight: '800', color: '#000'}}>
+              <Text style={{fontSize: 12, fontWeight: '800', color: '#000'}}>
                 {' '}
                 How It Works!
               </Text>
@@ -92,7 +92,7 @@ const HowitWorks = ({navigation}) => {
         </View>
       </View>
       <ScrollView>
-        <View style={{marginTop: 15}}>
+        <View style={{marginTop: 15,borderBottomColor:'#ccc',borderBottomWidth:1}}>
           <Text
             style={{
               textAlign: 'center',
@@ -135,7 +135,7 @@ const HowitWorks = ({navigation}) => {
           </View>
         </View>
 
-        <View style={{marginTop: 15}}>
+        <View style={{marginTop: 15,borderBottomColor:'#ccc',borderBottomWidth:1}}>
           <Text
             style={{
               textAlign: 'center',

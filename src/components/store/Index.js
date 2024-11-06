@@ -20,6 +20,10 @@ import Register from '../Auth/Register';
 import StartScreen from '../start/StartScreen';
 import HowitWorks from '../start/HowitWorks';
 import Bottomsheet from '../Screens/Nav/Bottomsheet';
+import Feedback_post from '../Screens/Bottom_screens/Home/Feedback_post';
+import Groups from '../Screens/Bottom_screens/Home/Groups';
+import Final_page from '../Auth/Final_page';
+import Chatting from '../Screens/Bottom_screens/Home/Chatting';
 
 const Stack = createStackNavigator();
 
@@ -118,6 +122,22 @@ const Index = () => {
             <Stack.Screen name="Bottomsheet">
               {props => <Bottomsheet {...props} handleLogout={handleLogout} />}
             </Stack.Screen>
+
+            <Stack.Screen
+              name="Feedback_post"
+              component={Feedback_post}
+              options={{headerShown: false}}
+            />
+               <Stack.Screen
+              name="Groups"
+              component={Groups}
+              options={{headerShown: false}}
+            />
+              <Stack.Screen
+              name="Chatting"
+              component={Chatting}
+              options={{headerShown: false}}
+            />
           </>
         ) : (
           <>
@@ -131,9 +151,15 @@ const Index = () => {
             <Stack.Screen name="Login">
               {props => <Login {...props} handleLogin={handleLogin} />}
             </Stack.Screen>
+            <Stack.Screen name="Final_page">
+              {props => <Final_page {...props} handleLogin={handleLogin} />}
+            </Stack.Screen>
             <Stack.Screen name="Register">
               {props => <Register {...props} handleLogin={handleLogin} />}
             </Stack.Screen>
+         
+            
+
           </>
         )}
       </Stack.Navigator>

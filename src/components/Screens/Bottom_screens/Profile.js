@@ -45,11 +45,15 @@ const Profile = ({route,navigation}) => {
 
   const HandleOption=(text)=>{
     console.log(text,"text")
+    if(text=="Logout"){
+      logout()
+    }
   }
   const edit=()=>{
     navigation.navigate('EditProfile')
   }
   const item = [
+    {image: require('../../../assets/images/group_plus.png'), id: 1, text: 'All Groups'},
     {image: require('../../../assets/images/medititon.png'), id: 1, text: 'Meditation'},
     {
       image: require('../../../assets/images/stretch.png'),
@@ -65,6 +69,11 @@ const Profile = ({route,navigation}) => {
       image: require('../../../assets/images/affirmation.png'),
       id: 4,
       text: 'Positive Affirmations',
+    },
+    {
+      image: require('../../../assets/images/power-off.png'),
+      id: 5,
+      text: 'Logout',
     },
 
   ];
@@ -111,7 +120,7 @@ const Profile = ({route,navigation}) => {
   return (
 
     <SafeAreaView style={styles.container}>
-      <View
+      {/* <View
         style={{
           alignItems: 'center',
           marginTop: 10,
@@ -140,6 +149,42 @@ const Profile = ({route,navigation}) => {
             </TouchableOpacity>
               </View>
       
+          </View>
+        </View>
+      </View> */}
+      <View
+        style={{
+          alignItems: 'center',
+          backgroundColor: '#99ff99',
+
+          borderBottomWidth: 1,
+          borderBottomColor: '#ccc',
+        }}>
+        <View style={{width: width * 0.95}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 5,
+              marginTop: 10,
+            }}>
+               <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Image
+                style={{width: 35, height: 35}}
+                source={require('../../../assets/images/safemind_logo.png')}></Image>
+              <Text style={{fontSize: 15, fontWeight: '800', color: '#000'}}>
+                SafeMind
+              </Text>
+            </View>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+             
+              <TouchableOpacity>
+                <Image
+                  style={{width: 35, height: 35}}
+                  source={require('../../../assets/images/setting.png')}></Image>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>

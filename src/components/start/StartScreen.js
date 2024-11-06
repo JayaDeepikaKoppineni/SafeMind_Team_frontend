@@ -9,14 +9,20 @@ import {
   FlatList,
   Image,
   ScrollView,
+  TextInput,Keyboard,TouchableWithoutFeedback
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Medtation from './Medtation';
 import Journaling from './Journaling';
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 import CarouselCardItem from './CarouselCardItem';
 import {InAppBrowser} from 'react-native-inappbrowser-reborn';
 import MultiAccordion from 'react-native-multi-flow-accordion';
+import Tooltip from 'react-native-walkthrough-tooltip';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import RBSheet from 'react-native-raw-bottom-sheet';
+import {Picker} from '@react-native-picker/picker';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
@@ -26,30 +32,76 @@ const StartScreen = ({navigation, handleLogin}) => {
   const {height} = Dimensions.get('window');
   const [index, setIndex] = React.useState(0);
   const isCarousel = React.useRef(null);
+  const [showTooltip1, setShowTooltip1] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOptionoccupation, setSelectedOptionoccupation] = useState('');
+  const [inputText, setInputText] = useState('');
+  const refRBSheet = useRef();
+  const [userId, setUserId] = useState('User1000'); // Initial user ID
+  const [error,seterror]=useState('')
+
+  const handleContinue = async () => {
+  
+    if(selectedOption && selectedOptionoccupation && inputText){
+      seterror("")
+      refRBSheet.current.close();
+      // Handle the continue action
+      console.log('Selected Option:', selectedOption);
+      console.log('Selected Option occupation:', selectedOptionoccupation);
+      console.log('Input Text:', inputText);
+    const stringifyData = [
+      {
+        userid: userId,
+        name: userId,
+        university: selectedOption,
+        role: selectedOptionoccupation,
+        streams: inputText,
+      },
+    ];
+    await EncryptedStorage.setItem(
+      'secrets_login_safeminds',
+      JSON.stringify({
+        data: stringifyData,
+      }),
+    );
+    handleLogin();
+    }else{
+      seterror("Please fill all the fields")
+    }
+
+  };
+
+  React.useEffect(() => {
+    // Check if tooltips have been shown before
+    AsyncStorage.getItem('tooltipsShownAuthrequest').then(value => {
+      if (!value) {
+        // First time user, show tooltips
+        setShowTooltip1(true);
+        AsyncStorage.setItem('tooltipsShownAuthrequest', 'true');
+      }
+    });
+  }, []);
   const datafaq = [
     {
       question: 'What Is Mindful Self-Reflection?',
       answer:
         'To self-reflect is to take the time to inquire more deeply into our experience. Also referred to as introspection, it asks us to examine our thoughts, our feelings, our assumptions, and our judgments, a process which helps us to grow.',
-     
     },
     {
       question: 'The Benefits of Mindful Self-Reflection',
       answer:
         'We do not need to reach the deepest practice of self-enquiry in order to experience the benefits of mindful self-reflection. As mentioned, mindful self-reflection has a range of benefits. For instance, it can:',
-     
     },
     {
       question: 'When to meditate?',
       answer:
         'Generally speaking, the best time to meditate is early morning, right after a trip to the bathroom but before breakfast. Having said that, any time that fits your schedule is good, and the most important thing is to choose a time when you are more likely to actually do it.',
-     
     },
     // {
     //   question: 'Where to meditate?',
     //   answer:
     //     'Meditating always in the same place and time is a good help in focusing the mind. Your brain associates that place with the practice, so it is easier for you to focus. There is less distraction involved.',
-     
+
     // },
   ];
   const data = [
@@ -131,7 +183,6 @@ const StartScreen = ({navigation, handleLogin}) => {
     },
   ];
 
-
   const [handleclick, sethandleclick] = useState('Medition');
 
   const changeoption = text => {
@@ -173,6 +224,7 @@ const StartScreen = ({navigation, handleLogin}) => {
         <View style={{width: width * 0.95}}>
           <View style={styles.container1}>
             <Image source={item.imgUrl} style={styles.image1} />
+
             <TouchableOpacity
               style={{
                 flexDirection: 'column',
@@ -184,11 +236,11 @@ const StartScreen = ({navigation, handleLogin}) => {
               <Text style={styles.header1}>{item.title}</Text>
               <Text style={styles.body1}>{item.body}</Text>
               <View>
-                <View>
+                <View style={{marginTop: 10}}>
                   <Text
                     style={{
                       color: 'red',
-                      textDecorationLine: 'underline',
+
                       fontSize: 12,
                     }}>
                     {'Read More>>'}
@@ -209,23 +261,41 @@ const StartScreen = ({navigation, handleLogin}) => {
           alignItems: 'center',
           backgroundColor: '#ccc',
           borderWidth: 1,
-          borderColor: '#000',
+          borderColor: '#ccc',
           marginRight: 5,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 8,
+          },
+          shadowOpacity: 0.46,
+          shadowRadius: 11.14,
+
+          elevation: 17,
+          borderRadius: 10,
         }}>
-        <Image source={item.imgUrl} style={{width: 100, height: 100}} />
+        <Image
+          source={item.imgUrl}
+          style={{width: 100, height: 100, borderRadius: 10}}
+        />
       </View>
     );
   };
-  const howitworks=()=>{
-    navigation.navigate('HowitWorks')
-  }
+  const howitworks = () => {
+    navigation.navigate('HowitWorks');
+  };
 
-  const handleRigister=()=>{
-    navigation.navigate('Register')
-  }
-  const handleLoginpress=()=>{
-    navigation.navigate('Login')
-  }
+  const handleRigister = () => {
+    refRBSheet.current.open();
+    const randomNum = Math.floor(Math.random() * 9000) + 1000;
+    const newUserId = `User${randomNum}`;
+    setUserId(newUserId); // Update the user ID in state
+    // handleLogin();
+    // navigation.navigate('Final_page')
+  };
+  const handleLoginpress = () => {
+    navigation.navigate('Login');
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={{alignItems: 'center', backgroundColor: '#99ff99'}}>
@@ -233,8 +303,8 @@ const StartScreen = ({navigation, handleLogin}) => {
           style={{
             width: width * 0.95,
             padding: 0,
-            marginBottom: 15,
-            marginTop: 15,
+            marginBottom: 5,
+            marginTop: 5,
           }}>
           <View
             style={{
@@ -242,11 +312,23 @@ const StartScreen = ({navigation, handleLogin}) => {
               alignItems: 'center',
               justifyContent: 'space-between',
             }}>
-            <Text style={{fontSize: 25, fontWeight: '800', color: '#000'}}>
-              SafeMind
-            </Text>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Image
+                style={{width: 35, height: 35}}
+                source={require('../../assets/images/safemind_logo.png')}></Image>
+              <Text style={{fontSize: 15, fontWeight: '800', color: '#000'}}>
+                SafeMind
+              </Text>
+            </View>
             <TouchableOpacity onPress={handleLoginpress}>
-              <Text style={{color: '#000',textDecorationLine:'underline',fontSize:15}}>Login ?</Text>
+              <Text
+                style={{
+                  color: 'blue',
+                  fontWeight: '900',
+                  fontSize: 15,
+                }}>
+                Login?
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -269,7 +351,6 @@ const StartScreen = ({navigation, handleLogin}) => {
               {
                 borderRadius: 20,
 
-                // backgroundColor: '#cccccc'
                 backgroundColor:
                   handleclick == 'Medition' ? '#cccccc' : '#b3ecff',
               },
@@ -306,21 +387,6 @@ const StartScreen = ({navigation, handleLogin}) => {
               horizontal
               showsHorizontalScrollIndicator={false}
             />
-            {/* <Medtation /> */}
-            {/* <Carousel
-          layout="tinder"
-          layoutCardOffset={9}
-          ref={isCarousel}
-          data={data}
-          renderItem={CarouselCardItem}
-          sliderWidth={width * 0.95}
-          itemWidth={width * 0.95}
-          onSnapToItem={index => setIndex(index)}
-          useScrollView={true}
-          autoplay={true}
-          loop={true}
-
-        />  */}
           </>
         ) : (
           <>
@@ -336,52 +402,214 @@ const StartScreen = ({navigation, handleLogin}) => {
           </>
         )}
       </View>
-      <View style={{alignItems: 'center', marginTop: 10}}>
-        <Text
-          style={{
-            color: '#000',
-            fontSize: 15,
-            fontWeight: '800',
-            textDecorationLine: 'underline',
-          }}>
-          Benfits of SafeMind
-        </Text>
-      </View>
+
       <View style={{alignItems: 'center', marginTop: 10}}>
         <View style={{width: width * 0.95}}>
-          <FlatList
-            data={databenfits}
-            renderItem={renderImage}
-            keyExtractor={item => item.id}
-            contentContainerStyle={{paddingBottom: 0}}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-          />
+          <Text
+            style={{
+              color: '#000',
+              fontSize: 15,
+              fontWeight: '800',
+            }}>
+            Benfits of SafeMind
+          </Text>
         </View>
       </View>
-     
-      <View style={{marginTop: 10, alignItems: 'center'}}>
-        <Text style={{color: '#000', fontSize: 15, fontWeight: '800'}}>FAQ</Text>
+
+      <View style={{alignItems: 'center', marginTop: 10}}>
+        <View style={{width: width * 0.95, marginBottom: 10}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <View style={styles.imagecard}>
+              <Image
+                source={require('../../assets/images/ben1.jpg')}
+                style={{width: 100, height: 100, borderRadius: 10}}
+              />
+            </View>
+            <View style={styles.imagecard}>
+              <Image
+                source={require('../../assets/images/ben2.jpg')}
+                style={{width: 100, height: 100, borderRadius: 10}}
+              />
+            </View>
+            <View style={styles.imagecard}>
+              <Image
+                source={require('../../assets/images/ben3.jpg')}
+                style={{width: 100, height: 100, borderRadius: 10}}
+              />
+            </View>
+          </View>
+        </View>
       </View>
-      <MultiAccordion containerStyle={{fontSize:10}} answerTextStyle={{fontSize:10}} questionTextStyle={{fontSize:10}} data={datafaq} />
-      
 
-
-      <View style={{alignItems: 'center',position:'absolute',bottom:25,right:0,left:0}}>
-        <TouchableOpacity 
-        onPress={handleRigister}
-        style={{width: width *0.8, height: 40, backgroundColor: 'blue',alignItems:'center',justifyContent:'center',borderRadius:10}}>
+      <View style={{alignItems: 'center'}}>
+        <View style={{width: width * 0.95}}>
+          <Text style={{color: '#000', fontSize: 15, fontWeight: '800'}}>
+            FAQ
+          </Text>
+        </View>
+      </View>
+      <View style={{marginTop: 10}}>
+        <MultiAccordion
+          containerStyle={{fontSize: 10}}
+          answerTextStyle={{fontSize: 10}}
+          questionTextStyle={{fontSize: 10}}
+          data={datafaq}
+        />
+      </View>
+      <View
+        style={{
+          alignItems: 'center',
+          position: 'absolute',
+          bottom: 25,
+          right: 0,
+          left: 0,
+        }}>
+        <TouchableOpacity
+          onPress={handleRigister}
+          style={{
+            width: width * 0.8,
+            height: 40,
+            backgroundColor: '#007AFF',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 10,
+          }}>
           <View>
-            <Text style={{color:'#fff'}}>Get Started</Text>
+            <Tooltip
+              // style={{width: 40}}
+              animated={true}
+              // arrowSize={{width: 16, height: 8}}
+              backgroundColor="rgba(0,0,0,0.5)"
+              isVisible={showTooltip1}
+              content={
+                <Text style={{color: '#000', fontSize: 10}}>
+                  Click here to continue
+                </Text>
+              }
+              placement="top"
+              onClose={async () => {
+                setShowTooltip1(false);
+              }}>
+              <Text style={{color: '#fff'}}>Continue as Guest</Text>
+            </Tooltip>
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={{marginTop:20}} onPress={howitworks}>
+        <TouchableOpacity style={{marginTop: 20}} onPress={howitworks}>
           <View>
-            <Text style={{color:'blue',fontSize:15,textDecorationLine:'underline'}}>How It Works</Text>
+            <Text
+              style={{
+                color: 'blue',
+                fontSize: 15,
+                textDecorationLine: 'underline',
+              }}>
+              How It Works
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
 
+      <RBSheet
+        ref={refRBSheet}
+        closeOnDragDown={true}
+        closeOnPressMask={true}
+        customStyles={{
+          wrapper: {
+            backgroundColor: 'rgba(0,0,0,.6)',
+          },
+          draggableIcon: {
+            backgroundColor: '#000',
+            width: '10%',
+          },
+          container: {
+            ...styles.bottom12,
+            height: '70%',
+          },
+        }}>
+        <View>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={{alignItems: 'center'}}>
+            <View style={{width: width * 0.9}}>
+              <View style={{}}>
+                <Text
+                  style={{
+                    color: '#000',
+                    textAlign: 'center',
+                    fontWeight: '800',
+                  }}>
+                  {userId}
+                </Text>
+                <Text style={styles.label}>Select university</Text>
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={selectedOption}
+                    onValueChange={itemValue => setSelectedOption(itemValue)}
+                    style={styles.picker}>
+                    <Picker.Item label="Choose an option..." value="" />
+                    <Picker.Item
+                      label="Saint Louis university"
+                      value="Saint Louis university"
+                    />
+                    <Picker.Item
+                      label="Missouri state university "
+                      value="Missouri state university "
+                    />
+                    <Picker.Item
+                      label="Washington university"
+                      value="Washington university"
+                    />
+                    <Picker.Item label="Others" value="Others" />
+                  </Picker>
+                </View>
+
+                <Text style={styles.label}>Select Role</Text>
+
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={selectedOptionoccupation}
+                    onValueChange={itemValue =>
+                      setSelectedOptionoccupation(itemValue)
+                    }
+                    style={styles.picker}>
+                    <Picker.Item label="Choose an option..." value="" />
+                    <Picker.Item label="Student" value="Student" />
+                    <Picker.Item label="Faculty" value="Faculty" />
+                    <Picker.Item label="Staff" value="Staff" />
+                    <Picker.Item label="Alumni" value="Alumni" />
+                    <Picker.Item label="Others" value="Others" />
+                  </Picker>
+                </View>
+
+                {/* Text Input */}
+                <Text style={styles.label}>Enter your Streams:</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter Streams ..."
+                  value={inputText}
+                  onChangeText={inputText => setInputText(inputText)}
+                  placeholderTextColor={'#ccc'}
+                />
+
+                {error && (
+                  <View>
+                    <Text style={{color: 'red'}}>{error}</Text>
+                  </View>
+                )}
+                <TouchableOpacity  style={{width:width*0.9,height:40,backgroundColor:'#007AFF',alignItems:'center',justifyContent:'center',borderRadius:10}} onPress={handleContinue}>
+                  <View>
+                    <Text style={{color:'#fff'}}>Continue</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+          </TouchableWithoutFeedback>
+        </View>
+      </RBSheet>
     </SafeAreaView>
   );
 };
@@ -418,9 +646,19 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     height: 150,
     marginTop: 10,
-    borderRightColor: '#ccc',
+    marginRight: 5,
+    marginLeft: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.46,
+    shadowRadius: 11.14,
+
+    elevation: 17,
     borderWidth: 1,
-    marginRight: 10,
+    borderColor: '#ccc',
   },
   image1: {
     width: 100,
@@ -430,11 +668,58 @@ const styles = StyleSheet.create({
   },
   header1: {
     color: '#000',
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: 'bold',
+    marginTop: 5,
   },
   body1: {
     color: '#222',
     fontSize: 10,
+    marginTop: 5,
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginBottom: 10,
+    color: '#000',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    marginBottom: 20,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 45,
+    width: '100%',
+    color: '#000',
+    fontSize: 12,
+  },
+  input: {
+    height: 45,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    color: '#000',
+  },
+  imagecard: {
+    alignItems: 'center',
+    backgroundColor: '#ccc',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    marginRight: 5,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 8,
+    },
+    shadowOpacity: 0.46,
+    shadowRadius: 11.14,
+
+    elevation: 17,
+    borderRadius: 10,
   },
 });
