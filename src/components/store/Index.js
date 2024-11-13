@@ -24,6 +24,7 @@ import Feedback_post from '../Screens/Bottom_screens/Home/Feedback_post';
 import Groups from '../Screens/Bottom_screens/Home/Groups';
 import Final_page from '../Auth/Final_page';
 import Chatting from '../Screens/Bottom_screens/Home/Chatting';
+import Pomodoro from '../Screens/Bottom_screens/Profile/Pomodoro';
 
 const Stack = createStackNavigator();
 
@@ -138,6 +139,12 @@ const Index = () => {
               component={Chatting}
               options={{headerShown: false}}
             />
+                <Stack.Screen
+              name="Pomodoro"
+              component={Pomodoro}
+              options={{headerShown: false}}
+            />
+
           </>
         ) : (
           <>

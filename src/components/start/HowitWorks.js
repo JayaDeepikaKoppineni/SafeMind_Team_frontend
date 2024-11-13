@@ -78,15 +78,15 @@ const HowitWorks = ({navigation}) => {
               </Text>
             </View>
 
-            <TouchableOpacity onPress={handleLoginpress}>
-              <Text
+            <TouchableOpacity >
+              {/* <Text
                 style={{
                   color: '#000',
                   textDecorationLine: 'underline',
                   fontSize: 15,
                 }}>
                 Login ?
-              </Text>
+              </Text> */}
             </TouchableOpacity>
           </View>
         </View>

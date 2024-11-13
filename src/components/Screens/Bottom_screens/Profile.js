@@ -47,6 +47,10 @@ const Profile = ({route,navigation}) => {
     console.log(text,"text")
     if(text=="Logout"){
       logout()
+    }else if(text=="Pomodoro Timer"){
+      navigation.navigate('Pomodoro')
+    }else if(text=="All Groups"){
+      navigation.navigate('Groups')
     }
   }
   const edit=()=>{
@@ -54,25 +58,26 @@ const Profile = ({route,navigation}) => {
   }
   const item = [
     {image: require('../../../assets/images/group_plus.png'), id: 1, text: 'All Groups'},
-    {image: require('../../../assets/images/medititon.png'), id: 1, text: 'Meditation'},
-    {
-      image: require('../../../assets/images/stretch.png'),
-      id: 2,
-      text: 'Quick Stretch',
-    },
     {
       image: require('../../../assets/images/timer.png'),
-      id: 3,
+      id: 2,
       text: 'Pomodoro Timer',
     },
+    {image: require('../../../assets/images/medititon.png'), id: 3, text: 'Meditation'},
+    {
+      image: require('../../../assets/images/stretch.png'),
+      id: 4,
+      text: 'Quick Stretch',
+    },
+ 
     {
       image: require('../../../assets/images/affirmation.png'),
-      id: 4,
+      id: 5,
       text: 'Positive Affirmations',
     },
     {
       image: require('../../../assets/images/power-off.png'),
-      id: 5,
+      id: 6,
       text: 'Logout',
     },
 
@@ -120,38 +125,6 @@ const Profile = ({route,navigation}) => {
   return (
 
     <SafeAreaView style={styles.container}>
-      {/* <View
-        style={{
-          alignItems: 'center',
-          marginTop: 10,
-          borderBottomWidth: 1,
-          borderBottomColor: '#ccc',
-        }}>
-        <View style={{width: width * 0.95}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              marginBottom: 5,
-            }}>
-            <Image
-              style={{width: 35, height: 35}}
-              source={require('../../../assets/images/user.png')}></Image>
-
-              <View style={{flexDirection:'row',alignItems:'center'}}>
-
-         
-            <TouchableOpacity>
-              <Image
-                style={{width: 35, height: 35}}
-                source={require('../../../assets/images/setting.png')}></Image>
-            </TouchableOpacity>
-              </View>
-      
-          </View>
-        </View>
-      </View> */}
       <View
         style={{
           alignItems: 'center',
@@ -180,9 +153,9 @@ const Profile = ({route,navigation}) => {
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
              
               <TouchableOpacity>
-                <Image
+                {/* <Image
                   style={{width: 35, height: 35}}
-                  source={require('../../../assets/images/setting.png')}></Image>
+                  source={require('../../../assets/images/setting.png')}></Image> */}
               </TouchableOpacity>
             </View>
           </View>

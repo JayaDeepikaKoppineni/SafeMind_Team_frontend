@@ -9,7 +9,9 @@ import {
   FlatList,
   Image,
   ScrollView,
-  TextInput,Keyboard,TouchableWithoutFeedback
+  TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import Medtation from './Medtation';
@@ -23,6 +25,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import {Picker} from '@react-native-picker/picker';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import {safemind_create_account} from '../Api/Api';
 
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
@@ -38,37 +41,65 @@ const StartScreen = ({navigation, handleLogin}) => {
   const [inputText, setInputText] = useState('');
   const refRBSheet = useRef();
   const [userId, setUserId] = useState('User1000'); // Initial user ID
-  const [error,seterror]=useState('')
+  const [error, seterror] = useState('');
+  const [selectedPersonality, setSelectedPersonality] = useState('');
 
   const handleContinue = async () => {
-  
-    if(selectedOption && selectedOptionoccupation && inputText){
-      seterror("")
+    if (
+      selectedOption &&
+      selectedOptionoccupation &&
+      inputText &&
+      selectedPersonality
+    ) {
+      seterror('');
       refRBSheet.current.close();
       // Handle the continue action
       console.log('Selected Option:', selectedOption);
       console.log('Selected Option occupation:', selectedOptionoccupation);
       console.log('Input Text:', inputText);
-    const stringifyData = [
-      {
-        userid: userId,
-        name: userId,
-        university: selectedOption,
-        role: selectedOptionoccupation,
-        streams: inputText,
-      },
-    ];
-    await EncryptedStorage.setItem(
-      'secrets_login_safeminds',
-      JSON.stringify({
-        data: stringifyData,
-      }),
-    );
-    handleLogin();
-    }else{
-      seterror("Please fill all the fields")
-    }
 
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: userId,
+          email: userId,
+          password: '',
+          university: selectedOption,
+          role: selectedOptionoccupation,
+          streams: inputText,
+          personal_type: selectedPersonality,
+        }),
+      };
+
+      try {
+        var match_res = await fetch(safemind_create_account, requestOptions);
+        console.log(match_res);
+        var res = await match_res.json();
+        console.log(res, 'ress!!');
+
+        if (res.success == true) {
+          var stringifyData = JSON.stringify(res.data.Data);
+          var stringifyDatatoken = JSON.stringify(res.data.token);
+          console.log(stringifyData, 'stringifyData');
+
+          await EncryptedStorage.setItem(
+            'secrets_login_safeminds',
+            JSON.stringify({
+              acesstoken: stringifyDatatoken,
+              data: stringifyData,
+            }),
+          );
+          handleLogin();
+        }
+      } catch (e) {
+        console.log(e, 'errors');
+      }
+    } else {
+      seterror('Please fill all the fields');
+    }
   };
 
   React.useEffect(() => {
@@ -320,15 +351,15 @@ const StartScreen = ({navigation, handleLogin}) => {
                 SafeMind
               </Text>
             </View>
-            <TouchableOpacity onPress={handleLoginpress}>
-              <Text
+            <TouchableOpacity>
+              {/* <Text
                 style={{
                   color: 'blue',
                   fontWeight: '900',
                   fontSize: 15,
                 }}>
                 Login?
-              </Text>
+              </Text> */}
             </TouchableOpacity>
           </View>
         </View>
@@ -527,86 +558,112 @@ const StartScreen = ({navigation, handleLogin}) => {
           },
           container: {
             ...styles.bottom12,
-            height: '70%',
+            height: '85%',
           },
         }}>
         <View>
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <View style={{alignItems: 'center'}}>
-            <View style={{width: width * 0.9}}>
-              <View style={{}}>
-                <Text
-                  style={{
-                    color: '#000',
-                    textAlign: 'center',
-                    fontWeight: '800',
-                  }}>
-                  {userId}
-                </Text>
-                <Text style={styles.label}>Select university</Text>
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={selectedOption}
-                    onValueChange={itemValue => setSelectedOption(itemValue)}
-                    style={styles.picker}>
-                    <Picker.Item label="Choose an option..." value="" />
-                    <Picker.Item
-                      label="Saint Louis university"
-                      value="Saint Louis university"
-                    />
-                    <Picker.Item
-                      label="Missouri state university "
-                      value="Missouri state university "
-                    />
-                    <Picker.Item
-                      label="Washington university"
-                      value="Washington university"
-                    />
-                    <Picker.Item label="Others" value="Others" />
-                  </Picker>
-                </View>
-
-                <Text style={styles.label}>Select Role</Text>
-
-                <View style={styles.pickerContainer}>
-                  <Picker
-                    selectedValue={selectedOptionoccupation}
-                    onValueChange={itemValue =>
-                      setSelectedOptionoccupation(itemValue)
-                    }
-                    style={styles.picker}>
-                    <Picker.Item label="Choose an option..." value="" />
-                    <Picker.Item label="Student" value="Student" />
-                    <Picker.Item label="Faculty" value="Faculty" />
-                    <Picker.Item label="Staff" value="Staff" />
-                    <Picker.Item label="Alumni" value="Alumni" />
-                    <Picker.Item label="Others" value="Others" />
-                  </Picker>
-                </View>
-
-                {/* Text Input */}
-                <Text style={styles.label}>Enter your Streams:</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter Streams ..."
-                  value={inputText}
-                  onChangeText={inputText => setInputText(inputText)}
-                  placeholderTextColor={'#ccc'}
-                />
-
-                {error && (
-                  <View>
-                    <Text style={{color: 'red'}}>{error}</Text>
+          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <View style={{alignItems: 'center'}}>
+              <View style={{width: width * 0.9}}>
+                <View style={{}}>
+                  <Text
+                    style={{
+                      color: '#000',
+                      textAlign: 'center',
+                      fontWeight: '800',
+                    }}>
+                    {userId}
+                  </Text>
+                  <Text style={styles.label}>Select university</Text>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={selectedOption}
+                      onValueChange={itemValue => setSelectedOption(itemValue)}
+                      style={styles.picker}>
+                      <Picker.Item label="Choose an option..." value="" />
+                      <Picker.Item
+                        label="Saint Louis university"
+                        value="Saint Louis university"
+                      />
+                      <Picker.Item
+                        label="Missouri state university "
+                        value="Missouri state university "
+                      />
+                      <Picker.Item
+                        label="Washington university"
+                        value="Washington university"
+                      />
+                      <Picker.Item label="Others" value="Others" />
+                    </Picker>
                   </View>
-                )}
-                <TouchableOpacity  style={{width:width*0.9,height:40,backgroundColor:'#007AFF',alignItems:'center',justifyContent:'center',borderRadius:10}} onPress={handleContinue}>
-                  <View>
-                    <Text style={{color:'#fff'}}>Continue</Text>
+
+                  <Text style={styles.label}>Select Role</Text>
+
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={selectedOptionoccupation}
+                      onValueChange={itemValue =>
+                        setSelectedOptionoccupation(itemValue)
+                      }
+                      style={styles.picker}>
+                      <Picker.Item label="Choose an option..." value="" />
+                      <Picker.Item label="Student" value="Student" />
+                      <Picker.Item label="Faculty" value="Faculty" />
+                      <Picker.Item label="Staff" value="Staff" />
+                      <Picker.Item label="Alumni" value="Alumni" />
+                      <Picker.Item label="Others" value="Others" />
+                    </Picker>
                   </View>
-                </TouchableOpacity>
+
+                  {/* Text Input */}
+                  <Text style={styles.label}>Enter your Streams:</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter Streams ..."
+                    value={inputText}
+                    onChangeText={inputText => setInputText(inputText)}
+                    placeholderTextColor={'#ccc'}
+                  />
+
+                  <Text style={styles.label}>Select Personality Type</Text>
+
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={selectedPersonality}
+                      onValueChange={itemValue =>
+                        setSelectedPersonality(itemValue)
+                      }
+                      style={styles.picker}>
+                      <Picker.Item label="Choose an option..." value="" />
+                      <Picker.Item label="Explorer" value="Explorer" />
+                      <Picker.Item label="Shopper" value="Shopper" />
+                      <Picker.Item label="Prisoner" value="Prisoner" />
+                      <Picker.Item label="Vacationer" value="Vacationer" />
+                    </Picker>
+                  </View>
+
+                  {error && (
+                    <View>
+                      <Text style={{color: 'red'}}>{error}</Text>
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={{
+                      width: width * 0.9,
+                      height: 40,
+                      backgroundColor: '#007AFF',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 10,
+                    }}
+                    onPress={handleContinue}>
+                    <View>
+                      <Text style={{color: '#fff'}}>Continue</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
-          </View>
           </TouchableWithoutFeedback>
         </View>
       </RBSheet>

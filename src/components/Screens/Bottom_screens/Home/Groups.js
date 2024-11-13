@@ -9,11 +9,15 @@ import {
   Pressable,
   Modal,
   TextInput,
-  Button,FlatList
+  Button,
+  FlatList,
 } from 'react-native';
-import React, {useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Tooltip from 'react-native-walkthrough-tooltip';
+import React, {useState, useLayoutEffect, useEffect} from 'react';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import EncryptedStorage from 'react-native-encrypted-storage';
+import {createGroup, Group_get, Group_get_all} from '../../../Api/Api';
 
 const {width} = Dimensions.get('window');
 const Groups = ({navigation}) => {
@@ -30,6 +34,21 @@ const Groups = ({navigation}) => {
   const [mode, setMode] = useState('date'); // Keeps track of date or time mode
 
   const [groupDescription, setGroupDescription] = useState('');
+  const [rooms, setRooms] = useState([]);
+  const [rooms_g, setRooms_g] = useState([]);
+
+  const [showTooltip1, setShowTooltip1] = useState(false);
+
+  React.useEffect(() => {
+    // Check if tooltips have been shown before
+    AsyncStorage.getItem('tooltipsShownHomegroup').then(value => {
+      if (!value) {
+        // First time user, show tooltips
+        setShowTooltip1(true);
+        AsyncStorage.setItem('tooltipsShownHomegroup', 'true');
+      }
+    });
+  }, []);
 
   const onpressContinue = () => {
     setDialogBoxVisible(true);
@@ -56,72 +75,134 @@ const Groups = ({navigation}) => {
   const [posts, setPosts] = useState([]);
 
 
-  const handlecreate = async () => {
-    if(groupname && groupDescription && date){
-      setDialogBoxVisible(false)
-    const sessionss = await EncryptedStorage.getItem('secrets_login_safeminds');
-    const client_secret_data_api = JSON.parse(sessionss).data;
+  async function fetchGroups() {
+    const session = await EncryptedStorage.getItem('secrets_login_safeminds');
+    const client_secret_data = JSON.parse(session).data;
+    const client_secret_token = JSON.parse(session).acesstoken;
 
-    console.log(client_secret_data_api, 'secrets_login_safeminds');
+    console.log(client_secret_data, 'client_secret_data');
+    const responseData = JSON.parse(client_secret_data);
 
-    const newPost = {
-      id: (posts.length + 1).toString(), // Incrementing the ID (you can use a more robust method in production)
-      userid: client_secret_data_api[0].userid,
-      createdname: client_secret_data_api[0].name,
-      university: client_secret_data_api[0].university,
-      group: groupname,
-      description: groupDescription,
-      date: date.toLocaleDateString(),
-      time: date.toLocaleTimeString(),
-      createdat: new Date().toLocaleTimeString(),
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // body: JSON.stringify({
+      //   userid: responseData[0].name,
+      // }),
     };
-    console.log(newPost, 'newPost');
-    setgroupname('');
-  setGroupDescription('')
-    // Add the new post to the existing list of posts
-    setPosts([newPost, ...posts]);
-    alert('Post Added');
-    }else{
-alert("Please Enter details")
+    try {
+      var match_res = await fetch(Group_get_all, requestOptions);
+      var response = await match_res.json();
+      console.log(response, 'response');
+      if (response.result == 'success') {
+        setRooms_g(response.data);
+      } else {
+        console.log('NO');
+      }
+    } catch (e) {
+      console.log(e);
     }
-    
+  }
+  
+  useEffect(() => {
+  
+    fetchGroups();
+  }, []);
+  const handlecreate = async () => {
+    if (groupname && groupDescription && date) {
+      setDialogBoxVisible(false);
+      const session = await EncryptedStorage.getItem('secrets_login_safeminds');
+      const client_secret_data = JSON.parse(session).data;
+      const client_secret_token = JSON.parse(session).acesstoken;
+
+      console.log(client_secret_data, 'client_secret_data');
+      const responseData = JSON.parse(client_secret_data);
+      const randomNumber = Math.floor(
+        100000000000 + Math.random() * 900000000000,
+      );
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          group_name: groupname,
+          streams: groupname,
+          class_desc: groupDescription,
+          class_date: date.toLocaleDateString(),
+          class_time: date.toLocaleTimeString(),
+          userid: responseData[0].name,
+          university: responseData[0].university,
+          group_number: randomNumber.toString(),
+        }),
+      };
+      try {
+        var match_res = await fetch(createGroup, requestOptions);
+        var res = await match_res.json();
+
+        console.log(res, 'res@@@@@@');
+        if (res.success == true) {
+          alert('Successfully created Group ');
+
+
+          setgroupname('');
+          setGroupDescription('');
+          fetchGroups();
+        } else {
+          alert(res.Message);
+          showToast('error', res.Message, 'top');
+        }
+      } catch (e) {
+        alert('Please Try again');
+        console.log(e, 'catch match');
+      }
+    } else {
+      alert('Please Enter details');
+    }
   };
 
-  const handlecreatesend=async(item)=>{
-    const sessionss = await EncryptedStorage.getItem('secrets_login_safeminds');
-    const client_secret_data_api = JSON.parse(sessionss).data;
+  const handlecreatesend = async item => {
+    const session = await EncryptedStorage.getItem('secrets_login_safeminds');
+    const client_secret_data = JSON.parse(session).data;
+    const client_secret_token = JSON.parse(session).acesstoken;
 
+    console.log(client_secret_data, 'client_secret_data');
+    const responseData = JSON.parse(client_secret_data);
+
+    console.log(responseData[0].name, 'responseData[0].name');
+    console.log(item, 'item');
 
     navigation.navigate('Chatting', {
       userKey: item,
-      reciverKey: client_secret_data_api[0].userid,
+      reciverKey: responseData[0].name,
     });
-  }
+  };
   const renderChatItem = ({item}) => {
     return (
       <Pressable onPress={() => handlecreatesend(item)}>
         <View style={styles.cchat}>
-          <Image
-            source={require('../../../../assets/images/user1.png')}
-            style={{
-              width: 40,
-              height: 40,
-          
-          
-            }}
-          />
+          <View style={styles.icon}>
+            <Image
+              source={require('../../../../assets/images/group_icon.png')}
+              style={{
+                width: 30,
+                height: 30,
+              }}
+            />
+          </View>
 
           <View style={styles.crightContainer}>
             <View>
-            <Text style={styles.cmessage}>{item.university}</Text>
-              <Text style={styles.cusername}>{item.group}</Text>
+              {/* <Text style={styles.cmessage}>{item.university}</Text> */}
+              <Text style={styles.cusername}>{item.groupd_name}</Text>
 
-              <Text style={styles.cmessage}>{item.description}</Text>
+              {/* <Text style={styles.cmessage}>{item.class_desc}</Text> */}
             </View>
             <View>
-              <Text style={styles.ctime}>
-              {item.date} | {item.time}
-              </Text>
+              <Text style={styles.ctime}>{item.class_date} </Text>
+              <Text style={styles.ctime}>{item.class_time}</Text>
             </View>
           </View>
         </View>
@@ -151,17 +232,18 @@ alert("Please Enter details")
           </View>
         </View>
       </View>
-      {posts ? (
+
+      {rooms_g && rooms_g.length > 0 ? (
         <>
-          <View>
-            <FlatList
-              data={posts}
-              keyExtractor={(item, index) => index.toString()}
-              // renderItem={({item}) => <ChatComponent item={item} />}
-              renderItem={renderChatItem}
-              contentContainerStyle={{paddingBottom: height * 0.2}}
-            />
-          </View>
+          <FlatList
+            data={rooms_g}
+            // renderItem={({item}) => <ChatComponent item={item} />}
+            renderItem={renderChatItem}
+            // keyExtractor={item => item.id}
+
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={{paddingBottom: height * 0.1}}
+          />
         </>
       ) : (
         <>
@@ -187,8 +269,6 @@ alert("Please Enter details")
         </>
       )}
 
- 
-
       <View>
         <Modal
           animationType="slide"
@@ -201,7 +281,6 @@ alert("Please Enter details")
                 <View style={{width: width * 0.8}}>
                   <Text style={styles.modalsubheading}>Create a New Group</Text>
 
-              
                   <TextInput
                     style={styles.input}
                     placeholder="Enter Streams "
@@ -308,23 +387,34 @@ alert("Please Enter details")
         </Modal>
       </View>
 
-
-
-
-        <View
-          style={{
-           
-            position: 'absolute',
-            bottom: 20,
-            right: 10,
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          right: 10,
+        }}>
+         <Tooltip
+          // style={{width: 40}}
+          animated={true}
+          // arrowSize={{width: 16, height: 8}}
+          backgroundColor="rgba(0,0,0,0.5)"
+          isVisible={showTooltip1}
+          content={
+            <Text style={{color: '#000', fontSize: 12}}>
+              Click here to create a new group
+            </Text>
+          }
+          placement="top"
+          onClose={async () => {
+            setShowTooltip1(false);
           }}>
-          <TouchableOpacity onPress={onpressContinue}>
-            <Image
-              style={{width: 50, height: 50}}
-              source={require('../../../../assets/images/add.png')}></Image>
-          </TouchableOpacity>
-        </View>
-    
+        <TouchableOpacity onPress={onpressContinue}>
+          <Image
+            style={{width: 50, height: 50}}
+            source={require('../../../../assets/images/add.png')}></Image>
+        </TouchableOpacity>
+        </Tooltip>
+      </View>
     </SafeAreaView>
   );
 };
@@ -438,10 +528,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     // borderWidth: 1,
     // borderColor: '#b3b3b3',
-    borderBottomColor:'#800000',
-    borderBottomWidth:1
-
- 
+    borderBottomColor: '#800000',
+    borderBottomWidth: 1,
+  },
+  icon: {
+    backgroundColor: '#4D5156',
+    width: 40,
+    height: 40,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   crightContainer: {
     flexDirection: 'row',
@@ -451,8 +547,8 @@ const styles = StyleSheet.create({
   },
   ctime: {
     opacity: 0.5,
-    color: '#777',
-    fontSize: 10,
+    color: '#000',
+    fontSize: 9,
   },
   cusername: {
     fontSize: 15,

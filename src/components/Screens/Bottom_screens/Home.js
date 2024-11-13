@@ -10,12 +10,15 @@ import {
   TextInput,
   Alert,
 } from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
 import uuid from 'react-native-uuid'; // For generating anonymous IDs
 import RBSheet from 'react-native-raw-bottom-sheet';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import {Group_get_all, safemind_post, safemind_post_all} from '../../Api/Api';
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
 const Home = ({navigation}) => {
@@ -35,6 +38,72 @@ const Home = ({navigation}) => {
       }
     });
   }, []);
+
+  const [getgroups, setgetgroups] = useState(null);
+  const [post,setpost]=useState(null)
+  async function fetchGroupspost() {
+
+    const requestOptions = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+    try {
+      var match_res = await fetch(safemind_post_all, requestOptions);
+      var response = await match_res.json();
+      console.log(response, 'response----------');
+      if (response.result == 'success') {
+        setpost(response.data);
+      } else {
+        console.log('NO');
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+  useFocusEffect(
+    React.useCallback(() => {
+     
+      fetchGroupspost();
+
+    }, []),
+  )
+
+  useFocusEffect(
+    React.useCallback(() => {
+      async function fetchGroups() {
+        const session = await EncryptedStorage.getItem(
+          'secrets_login_safeminds',
+        );
+        const client_secret_data = JSON.parse(session).data;
+        const client_secret_token = JSON.parse(session).acesstoken;
+
+        console.log(client_secret_data, 'client_secret_data');
+        const responseData = JSON.parse(client_secret_data);
+
+        const requestOptions = {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        };
+        try {
+          var match_res = await fetch(Group_get_all, requestOptions);
+          var response = await match_res.json();
+          console.log(response, 'response----------');
+          if (response.result == 'success') {
+            setgetgroups(response.data);
+          } else {
+            console.log('NO');
+          }
+        } catch (e) {
+          console.log(e);
+        }
+      }
+      fetchGroups();
+    }, []),
+  );
 
   const generateUserId = () => {
     return Math.floor(100000 + Math.random() * 900000).toString(); // Generates a random 6-digit ID
@@ -128,7 +197,7 @@ const Home = ({navigation}) => {
     });
   };
 
-  const addNewPost = () => {
+  const addNewPost = async() => {
     if (newPostContent.trim() === '') {
       Alert.alert('Error', 'Please enter some feedback before submitting.');
       return;
@@ -136,19 +205,53 @@ const Home = ({navigation}) => {
 
     refRBSheet.current.close();
     // Create a new post object
-    const newPost = {
-      id: (posts.length + 1).toString(), // Incrementing the ID (you can use a more robust method in production)
-      content: newPostContent,
-      category: 'General', // You can enhance this by letting users select categories
-      likes: 0,
-      likedByUser: false,
-    };
 
-    // Add the new post to the existing list of posts
-    setPosts([newPost, ...posts]);
-    alert('Post Added');
-    // Clear the TextInput
-    setNewPostContent('');
+    const session = await EncryptedStorage.getItem('secrets_login_safeminds');
+    const client_secret_data = JSON.parse(session).data;
+    const client_secret_token = JSON.parse(session).acesstoken;
+
+    console.log(client_secret_data, 'client_secret_data');
+    const responseData = JSON.parse(client_secret_data);
+
+    const data=new Date().toLocaleString();
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        post: newPostContent,
+        userid:responseData[0].name,
+        currentstamp:data,
+        likes:"0"
+      }),
+    };
+    try {
+      var match_res = await fetch(safemind_post, requestOptions);
+      var response = await match_res.json();
+      console.log(response, 'response');
+      if (response.result == 'success') {
+        alert('Post Added');
+        setNewPostContent('');
+        fetchGroupspost()
+      } 
+    } catch (e) {
+      console.log(e);
+    }
+    // const newPost = {
+    //   id: (posts.length + 1).toString(), // Incrementing the ID (you can use a more robust method in production)
+    //   content: newPostContent,
+    //   category: 'General', // You can enhance this by letting users select categories
+    //   likes: 0,
+    //   likedByUser: false,
+    // };
+
+    // // Add the new post to the existing list of posts
+    // setPosts([newPost, ...posts]);
+    // alert('Post Added');
+    // // Clear the TextInput
+    // setNewPostContent('');
   };
 
   // Render each post item
@@ -166,8 +269,8 @@ const Home = ({navigation}) => {
               style={{width: 20, height: 20, borderRadius: 20}}
               source={require('../../../assets/images/profile.png')}></Image>
             <View style={{marginLeft: 10}}>
-              <Text style={styles.t_text}>User{userId}</Text>
-              <Text style={styles.t2_text}>{'22-10-2024'}</Text>
+              <Text style={styles.t_text}>User{item.userid}</Text>
+              <Text style={styles.t2_text}>{item.currentstamp}</Text>
             </View>
           </View>
           <TouchableOpacity>
@@ -177,14 +280,15 @@ const Home = ({navigation}) => {
           </TouchableOpacity>
         </View>
         <View style={styles.postContainer}>
-          <Text style={styles.postCategory}>Category: {item.category}</Text>
-          <Text style={styles.postContent}>{item.content}</Text>
-          <View style={styles.actions}>
+          {/* <Text style={styles.postCategory}>Category: {item.category}</Text> */}
+          <Text style={styles.postContent}>{item.post}</Text>
+          {/* <View style={styles.actions}>
             <TouchableOpacity
               onPress={() => toggleLike(item.id)}
               style={styles.likeButton}>
-              {/* <Text>{item.likes}</Text> */}
-              {item.likedByUser ? (
+           
+              
+              {item.likes ? (
                 <>
                   <Image
                     style={{width: 20, height: 20}}
@@ -197,16 +301,85 @@ const Home = ({navigation}) => {
                     source={require('../../../assets/images/dislike.png')}></Image>
                 </>
               )}
+
               <Text
                 style={[styles.likeText, item.likedByUser && {color: 'blue'}]}>
                 {item.likedByUser ? 'Unlike' : 'Like'} ({item.likes})
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
       </View>
     </View>
   );
+
+  const groupbtn = async item => {
+    const session = await EncryptedStorage.getItem('secrets_login_safeminds');
+    const client_secret_data = JSON.parse(session).data;
+    const client_secret_token = JSON.parse(session).acesstoken;
+
+    console.log(client_secret_data, 'client_secret_data');
+    const responseData = JSON.parse(client_secret_data);
+
+    console.log(responseData[0].name, 'responseData[0].name');
+    console.log(item, 'item');
+
+    navigation.navigate('Chatting', {
+      userKey: item,
+      reciverKey: responseData[0].name,
+    });
+  };
+
+  const rendergroups = ({item}) => {
+    const truncatedGroupName =
+      item.streams.length > 9 ? `${item.streams.slice(0, 9)}...` : item.streams;
+
+    return (
+      <View style={{alignItems: 'center'}}>
+        <TouchableOpacity
+          onPress={() => groupbtn(item)}
+          style={{alignItems: 'center'}}>
+          <View
+            style={{
+              width: 50,
+
+              borderRadius: 10,
+              backgroundColor: '#fff',
+              alignItems: 'center',
+              justifyContent: 'center',
+
+              // borderRadius: 10,
+            }}>
+            <View>
+              <View
+                style={{
+                  width: 45,
+                  height: 45,
+                  borderRadius: 10,
+                  backgroundColor: '#ccc',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 1,
+                  borderColor: 'green',
+                }}>
+                <Image
+                  source={require('../../../assets/images/group_icon.png')}
+                  style={{
+                    width: 25,
+                    height: 25,
+                    borderRadius: 30,
+                  }}
+                />
+              </View>
+              <Text style={{color: '#000', fontSize: 8, fontWeight: '700'}}>
+                {truncatedGroupName}
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
@@ -227,7 +400,7 @@ const Home = ({navigation}) => {
               marginBottom: 5,
               marginTop: 10,
             }}>
-               <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
               <Image
                 style={{width: 35, height: 35}}
                 source={require('../../../assets/images/safemind_logo.png')}></Image>
@@ -253,9 +426,64 @@ const Home = ({navigation}) => {
         </View>
       </View>
 
+      <View
+        style={{marginTop: 5, borderBottomColor: '#ccc', borderBottomWidth: 1}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: '#fff',
+          }}>
+          <View style={{marginRight: 20}}>
+            <TouchableOpacity
+              style={{alignItems: 'center'}}
+              onPress={() => navigation.navigate('Groups')}>
+              <View
+                style={{
+                  alignItems: 'center',
+                  width: 45,
+                  height: 45,
+                  borderRadius: 10,
+                  borderColor: '#ccc',
+                  borderWidth: 1,
+                  justifyContent: 'center',
+                }}>
+                <Image
+                  style={{width: 15, height: 15}}
+                  source={require('../../../assets/images/plus.png')}></Image>
+              </View>
+              <Text style={{color: '#000', fontSize: 8, fontWeight: '700'}}>
+                Create Group
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {getgroups && getgroups.length > 0 ? (
+            <>
+              <FlatList
+                data={getgroups}
+                keyExtractor={(item, index) => index.toString()}
+                horizontal
+                renderItem={rendergroups}
+                contentContainerStyle={{
+                  flexGrow: 1,
+                  paddingRight: height * 0.15,
+                }}
+                //  contentContainerStyle={{paddingBottom: height * 0.15}}
+              />
+            </>
+          ) : (
+            <>
+              <Text style={{color: '#000', fontSize: 10, fontWeight: '900'}}>
+                {'No Groups Found'}
+              </Text>
+            </>
+          )}
+        </View>
+      </View>
+
       <View style={{marginTop: 20}}>
         <FlatList
-          data={posts}
+          data={post}
           renderItem={renderItem}
           keyExtractor={item => item.id}
           contentContainerStyle={{paddingBottom: 100}}
@@ -405,6 +633,8 @@ const styles = StyleSheet.create({
   postContainer: {
     borderBottomWidth: 1,
     borderColor: '#ccc',
+    marginBottom:20,
+    marginTop:20
   },
   postContent: {
     fontSize: 14,

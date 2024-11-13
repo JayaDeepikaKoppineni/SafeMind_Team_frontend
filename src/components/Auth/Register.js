@@ -30,11 +30,55 @@ export default function Register({navigation}) {
   const [mail, setmail] = useState('');
   const [name, setname] = useState('');
   const [password, setPassword] = useState('');
-  const regiter = () => {
+  const regiter = async() => {
     console.log(name, mail, password);
+
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: userId,
+        email: userId,
+        password: '',
+        university: selectedOption,
+        role: selectedOptionoccupation,
+        streams: inputText,
+        personal_type: selectedPersonality,
+
+      }),
+    };
+
+    try{
+      var match_res = await fetch(safemind_create_account, requestOptions);
+      console.log(match_res);
+      var res = await match_res.json();
+      console.log(res,"ress!!")
+
+      if (res.success == true) {
+        var stringifyData = JSON.stringify(res.data.Data);
+        var stringifyDatatoken = JSON.stringify(res.data.token);
+          console.log(stringifyData,"stringifyData")
+
+        await EncryptedStorage.setItem(
+          'secrets_login_safeminds',
+          JSON.stringify({
+            acesstoken: stringifyDatatoken,
+            data: stringifyData,
+          }),
+        );
+        handleLogin();
+
+      }
+
+    }catch(e){
+      console.log(e)
+    }
   };
   const login = () => {
     navigation.navigate('Login');
+
   };
   return (
     <ImageBackground
