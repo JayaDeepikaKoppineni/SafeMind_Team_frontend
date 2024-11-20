@@ -26,6 +26,7 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 import {Picker} from '@react-native-picker/picker';
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {safemind_create_account} from '../Api/Api';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const {width} = Dimensions.get('window');
 const {height} = Dimensions.get('window');
@@ -42,12 +43,21 @@ const StartScreen = ({navigation, handleLogin}) => {
   const refRBSheet = useRef();
   const [userId, setUserId] = useState('User1000'); // Initial user ID
   const [error, seterror] = useState('');
-  const [selectedPersonality, setSelectedPersonality] = useState('');
+
+  const [selectedUniversity, setSelectedUniversity] = useState(null);
+  const [openUniversity, setOpenUniversity] = useState(false);
+
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [openRole, setOpenRole] = useState(false);
+
+  const [selectedPersonality, setSelectedPersonality] = useState(null);
+  const [openPersonality, setOpenPersonality] = useState(false);
 
   const handleContinue = async () => {
+
     if (
-      selectedOption &&
-      selectedOptionoccupation &&
+      selectedUniversity &&
+      selectedRole &&
       inputText &&
       selectedPersonality
     ) {
@@ -575,7 +585,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                     {userId}
                   </Text>
                   <Text style={styles.label}>Select university</Text>
-                  <View style={styles.pickerContainer}>
+                  {/* <View style={[styles.pickerContainer, {zIndex: 1}]}>
                     <Picker
                       selectedValue={selectedOption}
                       onValueChange={itemValue => setSelectedOption(itemValue)}
@@ -595,10 +605,57 @@ const StartScreen = ({navigation, handleLogin}) => {
                       />
                       <Picker.Item label="Others" value="Others" />
                     </Picker>
-                  </View>
+                  </View> */}
+                  <DropDownPicker
+                    open={openUniversity}
+                    value={selectedUniversity}
+                    items={[
+                      {label: 'Choose an option...', value: null},
+                      {
+                        label: 'Saint Louis university',
+                        value: 'Saint Louis university',
+                      },
+                      {
+                        label: 'Missouri state university',
+                        value: 'Missouri state university',
+                      },
+                      {
+                        label: 'Washington university',
+                        value: 'Washington university',
+                      },
+                      {label: 'Others', value: 'Others'},
+                    ]}
+                    setOpen={setOpenUniversity}
+                    setValue={setSelectedUniversity}
+                    placeholder="Choose an option..."
+                    style={styles.picker}
+                    dropDownContainerStyle={styles.dropdownContainer}
+                    zIndex={3000}  // Adjust the zIndex higher for the dropdown
+                    zIndexInverse={1000}  // Set a lower inverse zIndex for other components
+                  />
 
                   <Text style={styles.label}>Select Role</Text>
+                  <DropDownPicker
+                    open={openRole}
+                    value={selectedRole}
+                    items={[
+                      {label: 'Choose an option...', value: null},
+                      {label: 'Student', value: 'Student'},
+                      {label: 'Faculty', value: 'Faculty'},
+                      {label: 'Staff', value: 'Staff'},
+                      {label: 'Alumni', value: 'Alumni'},
+                      {label: 'Others', value: 'Others'},
+                    ]}
+                    setOpen={setOpenRole}
+                    setValue={setSelectedRole}
+                    placeholder="Choose an option..."
+                    style={styles.picker}
+                    dropDownContainerStyle={styles.dropdownContainer}
+                    zIndex={2000}  // Adjust the zIndex higher for the dropdown
+                    zIndexInverse={900}  // Set a lower inverse zIndex for other components
+                  />
 
+                  {/* 
                   <View style={styles.pickerContainer}>
                     <Picker
                       selectedValue={selectedOptionoccupation}
@@ -613,7 +670,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                       <Picker.Item label="Alumni" value="Alumni" />
                       <Picker.Item label="Others" value="Others" />
                     </Picker>
-                  </View>
+                  </View> */}
 
                   {/* Text Input */}
                   <Text style={styles.label}>Enter your Streams:</Text>
@@ -626,8 +683,26 @@ const StartScreen = ({navigation, handleLogin}) => {
                   />
 
                   <Text style={styles.label}>Select Personality Type</Text>
+                  <DropDownPicker
+                    open={openPersonality}
+                    value={selectedPersonality}
+                    items={[
+                      {label: 'Choose an option...', value: null},
+                      {label: 'Explorer', value: 'Explorer'},
+                      {label: 'Shopper', value: 'Shopper'},
+                      {label: 'Prisoner', value: 'Prisoner'},
+                      {label: 'Vacationer', value: 'Vacationer'},
+                    ]}
+                    setOpen={setOpenPersonality}
+                    setValue={setSelectedPersonality}
+                    placeholder="Choose an option..."
+                    style={styles.picker}
+                    dropDownContainerStyle={styles.dropdownContainer}
+                    zIndex={1000}  // Adjust the zIndex higher for the dropdown
+                    zIndexInverse={800}  // Set a lower inverse zIndex for other components
+                  />
 
-                  <View style={styles.pickerContainer}>
+                  {/* <View style={styles.pickerContainer}>
                     <Picker
                       selectedValue={selectedPersonality}
                       onValueChange={itemValue =>
@@ -640,7 +715,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                       <Picker.Item label="Prisoner" value="Prisoner" />
                       <Picker.Item label="Vacationer" value="Vacationer" />
                     </Picker>
-                  </View>
+                  </View> */}
 
                   {error && (
                     <View>
@@ -655,6 +730,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       borderRadius: 10,
+                    
                     }}
                     onPress={handleContinue}>
                     <View>
@@ -744,18 +820,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
-    marginBottom: 20,
     overflow: 'hidden',
+    marginVertical: 10,
   },
   picker: {
     height: 45,
     width: '100%',
     color: '#000',
     fontSize: 12,
+    marginBottom:10
   },
   input: {
     height: 45,
-    borderColor: '#ccc',
+    borderColor: '#000',
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,

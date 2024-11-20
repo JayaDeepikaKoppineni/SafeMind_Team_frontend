@@ -537,7 +537,7 @@ const Home = ({navigation}) => {
             },
             container: {
               ...styles.bottom12,
-              height: '96%',
+              height: '60%',
             },
           }}>
           <SafeAreaView style={{backgroundColor: '#fff', alignItems: 'center'}}>
