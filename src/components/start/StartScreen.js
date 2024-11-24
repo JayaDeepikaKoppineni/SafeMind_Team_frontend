@@ -14,28 +14,22 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import Medtation from './Medtation';
-import Journaling from './Journaling';
-import Carousel, {Pagination} from 'react-native-snap-carousel';
-import CarouselCardItem from './CarouselCardItem';
+
 import {InAppBrowser} from 'react-native-inappbrowser-reborn';
 import MultiAccordion from 'react-native-multi-flow-accordion';
 import Tooltip from 'react-native-walkthrough-tooltip';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import {Picker} from '@react-native-picker/picker';
+
 import EncryptedStorage from 'react-native-encrypted-storage';
 import {safemind_create_account} from '../Api/Api';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 const {width} = Dimensions.get('window');
-const {height} = Dimensions.get('window');
+
 
 const StartScreen = ({navigation, handleLogin}) => {
   const {width} = Dimensions.get('window');
-  const {height} = Dimensions.get('window');
-  const [index, setIndex] = React.useState(0);
-  const isCarousel = React.useRef(null);
   const [showTooltip1, setShowTooltip1] = useState(false);
   const [selectedOption, setSelectedOption] = useState('');
   const [selectedOptionoccupation, setSelectedOptionoccupation] = useState('');
@@ -632,6 +626,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                     dropDownContainerStyle={styles.dropdownContainer}
                     zIndex={3000}  // Adjust the zIndex higher for the dropdown
                     zIndexInverse={1000}  // Set a lower inverse zIndex for other components
+             testID="university-input"
                   />
 
                   <Text style={styles.label}>Select Role</Text>
@@ -653,6 +648,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                     dropDownContainerStyle={styles.dropdownContainer}
                     zIndex={2000}  // Adjust the zIndex higher for the dropdown
                     zIndexInverse={900}  // Set a lower inverse zIndex for other components
+                   testID="role-input"
                   />
 
                   {/* 
@@ -680,6 +676,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                     value={inputText}
                     onChangeText={inputText => setInputText(inputText)}
                     placeholderTextColor={'#ccc'}
+                       testID="name-input"
                   />
 
                   <Text style={styles.label}>Select Personality Type</Text>
@@ -700,6 +697,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                     dropDownContainerStyle={styles.dropdownContainer}
                     zIndex={1000}  // Adjust the zIndex higher for the dropdown
                     zIndexInverse={800}  // Set a lower inverse zIndex for other components
+                testID="personality-input"
                   />
 
                   {/* <View style={styles.pickerContainer}>
@@ -732,6 +730,7 @@ const StartScreen = ({navigation, handleLogin}) => {
                       borderRadius: 10,
                     
                     }}
+                    testID="signup-button" 
                     onPress={handleContinue}>
                     <View>
                       <Text style={{color: '#fff'}}>Continue</Text>

@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
-  StyleSheet,
-  Image,
-  Dimensions,
   ImageBackground,
 } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from '../Bottom_screens/Home';
 import Profile from '../Bottom_screens/Profile';
@@ -16,9 +12,6 @@ import Profile from '../Bottom_screens/Profile';
 const Tab = createBottomTabNavigator();
 
 export default function App({handleLogout }) {
-
-  const [focused, setFocused] = useState(false);
-
 
   return (
 
@@ -74,6 +67,7 @@ export default function App({handleLogout }) {
 
         name="Home"
         component={Home}  
+        testID="homeButton"
     
         />
 
@@ -101,6 +95,7 @@ export default function App({handleLogout }) {
         },
       }}
       name="Profile" component={Profile} 
+      testID="profileButton"
       initialParams={{ handleLogout }} 
       />
 
